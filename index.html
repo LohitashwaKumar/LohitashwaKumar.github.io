@@ -7,19 +7,23 @@
   <meta name="description" content="Portfolio of Lohitashwa Kumar — role, projects, and contact." />
   <style>
     :root{
-      --bg:#0b1020;
-      --card:#0f1730;
-      --text:#e9ecf5;
-      --muted:#a6b0d1;
-      --line: rgba(255,255,255,.12);
-      --accent:#7c5cff;
-      --accent2:#22c55e;
-      --shadow: 0 12px 30px rgba(0,0,0,.35);
-      --radius: 18px;
-      --max: 1080px;
-      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+        --bg:#070a12;
+        --card: rgba(15, 20, 35, .72);
+        --text:#f3f6ff;
+        --muted: rgba(243, 246, 255, .70);
+        --line: rgba(255,255,255,.10);
+
+        /* toned accents (subtle, not neon) */
+        --accent: rgba(124,92,255,.85);
+        --accent2: rgba(34,197,94,.75);
+
+        --shadow: 0 12px 30px rgba(0,0,0,.45);
+        --radius: 18px;
+        --max: 1080px;
+        --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{
@@ -188,9 +192,35 @@
     }
     .mono{font-family:var(--mono)}
     .hide{display:none}
+
+    #bg{
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -2;
+        pointer-events: none;
+    }
+
+    /* Optional: add a subtle vignette on top of the canvas */
+    body::before{
+        content:"";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events:none;
+        background:
+            radial-gradient(900px 600px at 20% 10%, rgba(124,92,255,.10), transparent 60%),
+            radial-gradient(900px 600px at 80% 20%, rgba(34,197,94,.08), transparent 60%),
+            radial-gradient(1200px 900px at 50% 120%, rgba(255,255,255,.05), transparent 55%),
+            radial-gradient(1200px 900px at 50% 50%, transparent 55%, rgba(0,0,0,.55));
+    }
+
+    
   </style>
 </head>
 <body>
+  <canvas id="bg"></canvas>
   <header>
     <div class="nav">
       <a class="brand" href="#top">
@@ -420,22 +450,264 @@
   </main>
 
   <script>
-    // year in footer
-    document.getElementById("year").textContent = new Date().getFullYear();
+  // year in footer
+  document.getElementById("year").textContent = new Date().getFullYear();
 
-    // optional: show a "sent" message without navigating away (works if Formspree returns OK)
-    const form = document.getElementById("contactForm");
-    const note = document.getElementById("formNote");
+  // ----------------------------
+  // Circuit background animation
+  // ----------------------------
+  const canvas = document.getElementById("bg");
+  const ctx = canvas.getContext("2d", { alpha: true });
+
+  const DPR = Math.min(2, window.devicePixelRatio || 1);
+
+  let W = 0, H = 0;
+  function resize() {
+    W = Math.floor(window.innerWidth);
+    H = Math.floor(window.innerHeight);
+    canvas.width = Math.floor(W * DPR);
+    canvas.height = Math.floor(H * DPR);
+    canvas.style.width = W + "px";
+    canvas.style.height = H + "px";
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  }
+  window.addEventListener("resize", resize);
+  resize();
+
+  // Build a grid of nodes, connect them with "circuit traces"
+  const spacing = 70;               // distance between nodes
+  const jitter = 14;                // slight randomness
+  const nodes = [];
+  const edges = [];                 // each edge: {a, b, len}
+  const pulses = [];                // each pulse: {edgeIndex, t, speed, size, hue}
+
+  function rand(min, max) { return min + Math.random() * (max - min); }
+
+  function buildCircuit() {
+    nodes.length = 0;
+    edges.length = 0;
+    pulses.length = 0;
+
+    const cols = Math.ceil(W / spacing) + 1;
+    const rows = Math.ceil(H / spacing) + 1;
+
+    // Create nodes
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        nodes.push({
+          x: x * spacing + rand(-jitter, jitter),
+          y: y * spacing + rand(-jitter, jitter),
+        });
+      }
+    }
+
+    // Helper: get node index
+    const idx = (x, y) => y * cols + x;
+
+    // Connect nodes with a sparse, circuit-like network
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = idx(x, y);
+        // connect right
+        if (x < cols - 1 && Math.random() < 0.78) addEdge(i, idx(x + 1, y));
+        // connect down
+        if (y < rows - 1 && Math.random() < 0.74) addEdge(i, idx(x, y + 1));
+
+        // occasional L-shaped long traces
+        if (x < cols - 2 && Math.random() < 0.12) addEdge(i, idx(x + 2, y));
+        if (y < rows - 2 && Math.random() < 0.10) addEdge(i, idx(x, y + 2));
+      }
+    }
+
+    // Seed pulses
+    const initial = Math.min(50, Math.floor(edges.length * 0.12));
+    for (let i = 0; i < initial; i++) spawnPulse();
+  }
+
+  function addEdge(ai, bi) {
+    const a = nodes[ai], b = nodes[bi];
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    // avoid tiny edges
+    if (len < 30) return;
+    edges.push({ ai, bi, len });
+  }
+
+  function spawnPulse() {
+    if (!edges.length) return;
+    const edgeIndex = Math.floor(Math.random() * edges.length);
+
+    pulses.push({
+      edgeIndex,
+      t: Math.random(),                 // 0..1 position along edge
+      speed: rand(0.10, 0.35),           // how fast it travels
+      size: rand(1.2, 2.4),              // glow size
+      // subtle hue shift between violet & green
+      mix: Math.random()
+    });
+  }
+
+  buildCircuit();
+
+  // Colors (toned, not neon)
+  function rgba(r, g, b, a) { return `rgba(${r},${g},${b},${a})`; }
+  const trace = rgba(255, 255, 255, 0.08);
+  const traceBright = rgba(255, 255, 255, 0.12);
+  const via = rgba(255, 255, 255, 0.10);
+
+  // Accent glows: violet-ish and green-ish but subdued
+  const violet = { r: 124, g: 92, b: 255 };
+  const green  = { r: 34,  g: 197, b: 94  };
+
+  function mixColor(c1, c2, t) {
+    return {
+      r: Math.round(c1.r + (c2.r - c1.r) * t),
+      g: Math.round(c1.g + (c2.g - c1.g) * t),
+      b: Math.round(c1.b + (c2.b - c1.b) * t),
+    };
+  }
+
+  // Frame limiting (smoother + less CPU)
+  let last = 0;
+  const FPS = 55;
+  const frameTime = 1000 / FPS;
+
+  function draw(ts) {
+    if (ts - last < frameTime) {
+      requestAnimationFrame(draw);
+      return;
+    }
+    last = ts;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // Base dark fill (lets canvas stand on its own)
+    ctx.fillStyle = "#070a12";
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle grid noise feel (light dots)
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = rgba(255, 255, 255, 0.03);
+    for (let i = 0; i < 140; i++) {
+      const x = rand(0, W), y = rand(0, H);
+      ctx.fillRect(x, y, 1, 1);
+    }
+
+    // Draw traces
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+
+    // thicker faint underlay
+    ctx.strokeStyle = trace;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (const e of edges) {
+      const a = nodes[e.ai], b = nodes[e.bi];
+      // make them look “circuit-like”: mostly straight segments (they already are)
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    }
+    ctx.stroke();
+
+    // occasional brighter segments
+    ctx.strokeStyle = traceBright;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    for (let i = 0; i < edges.length; i += 3) {
+      if (Math.random() < 0.45) continue;
+      const e = edges[i];
+      const a = nodes[e.ai], b = nodes[e.bi];
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+    }
+    ctx.stroke();
+
+    // Draw "vias" (nodes)
+    ctx.fillStyle = via;
+    for (let i = 0; i < nodes.length; i++) {
+      if (i % 3 !== 0) continue;
+      const n = nodes[i];
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, 1.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Pulses traveling along edges
+    for (const p of pulses) {
+      const e = edges[p.edgeIndex];
+      if (!e) continue;
+      const a = nodes[e.ai], b = nodes[e.bi];
+
+      p.t += (p.speed / e.len);         // normalize speed by edge length
+      if (p.t > 1) {
+        // respawn pulse elsewhere
+        p.edgeIndex = Math.floor(Math.random() * edges.length);
+        p.t = 0;
+        p.speed = rand(0.10, 0.35);
+        p.size = rand(1.2, 2.4);
+        p.mix = Math.random();
+      }
+
+      const x = a.x + (b.x - a.x) * p.t;
+      const y = a.y + (b.y - a.y) * p.t;
+
+      const c = mixColor(violet, green, p.mix);
+
+      // glow
+      const grad = ctx.createRadialGradient(x, y, 0, x, y, 26 * p.size);
+      grad.addColorStop(0, rgba(c.r, c.g, c.b, 0.22));
+      grad.addColorStop(0.35, rgba(c.r, c.g, c.b, 0.10));
+      grad.addColorStop(1, rgba(c.r, c.g, c.b, 0.0));
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(x, y, 26 * p.size, 0, Math.PI * 2);
+      ctx.fill();
+
+      // bright core dot
+      ctx.fillStyle = rgba(255, 255, 255, 0.58);
+      ctx.beginPath();
+      ctx.arc(x, y, 1.15 * p.size, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Keep pulse count stable, but occasionally add new ones
+    if (pulses.length < 60 && Math.random() < 0.06) spawnPulse();
+
+    requestAnimationFrame(draw);
+  }
+
+  requestAnimationFrame(draw);
+
+  // Optional: rebuild when tab refocuses (fresh layout)
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) {
+      resize();
+      buildCircuit();
+    }
+  });
+
+  // ----------------------------
+  // Your existing form code can remain below.
+  // If you're using Formspree, keep your intercept logic.
+  // ----------------------------
+  const form = document.getElementById("contactForm");
+  const note = document.getElementById("formNote");
+  if (form) {
     form.addEventListener("submit", async (e) => {
-      // If you don't use Formspree, remove this block.
       e.preventDefault();
       const data = new FormData(form);
       try {
-        const res = await fetch(form.action, { method: "POST", body: data, headers: { "Accept": "application/json" } });
+        const res = await fetch(form.action, {
+          method: "POST",
+          body: data,
+          headers: { "Accept": "application/json" }
+        });
         if (res.ok) {
           form.reset();
-          note.classList.remove("hide");
-          setTimeout(() => note.classList.add("hide"), 4000);
+          if (note) {
+            note.classList.remove("hide");
+            setTimeout(() => note.classList.add("hide"), 4000);
+          }
         } else {
           alert("Something went wrong. Please email me directly.");
         }
@@ -443,6 +715,8 @@
         alert("Network issue. Please email me directly.");
       }
     });
-  </script>
+  }
+</script>
+
 </body>
 </html>
