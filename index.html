@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Alchemy Lab</title>
+  <meta name="description" content="Portfolio of Lohitashwa Kumar — role, projects, and contact." />
+  <style>
+    :root{
+      --bg:#0b1020;
+      --card:#0f1730;
+      --text:#e9ecf5;
+      --muted:#a6b0d1;
+      --line: rgba(255,255,255,.12);
+      --accent:#7c5cff;
+      --accent2:#22c55e;
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+      --max: 1080px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:var(--sans);
+      color:var(--text);
+      background:
+        radial-gradient(1000px 600px at 15% 10%, rgba(124,92,255,.28), transparent 55%),
+        radial-gradient(800px 500px at 85% 20%, rgba(34,197,94,.20), transparent 50%),
+        radial-gradient(900px 700px at 50% 110%, rgba(124,92,255,.18), transparent 55%),
+        var(--bg);
+      line-height:1.5;
+    }
+    a{color:inherit}
+    .wrap{max-width:var(--max); margin:0 auto; padding:28px 18px 72px;}
+    header{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: blur(10px);
+      background: linear-gradient(to bottom, rgba(11,16,32,.92), rgba(11,16,32,.72));
+      border-bottom:1px solid var(--line);
+    }
+    .nav{
+      max-width:var(--max);
+      margin:0 auto;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:14px 18px;
+      gap:14px;
+    }
+    .brand{display:flex; align-items:center; gap:10px; text-decoration:none;}
+    .dot{
+      width:12px; height:12px; border-radius:50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      box-shadow:0 0 0 5px rgba(124,92,255,.15);
+    }
+    .brand strong{letter-spacing:.3px}
+    .links{display:flex; gap:14px; flex-wrap:wrap}
+    .links a{
+      text-decoration:none;
+      padding:8px 10px;
+      border-radius:10px;
+      color:var(--muted);
+      border:1px solid transparent;
+    }
+    .links a:hover{
+      color:var(--text);
+      border-color:var(--line);
+      background:rgba(255,255,255,.04);
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:10px;
+      padding:10px 14px; border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.04);
+      text-decoration:none;
+      color:var(--text);
+    }
+    .btn.primary{
+      border-color:transparent;
+      background:linear-gradient(135deg, rgba(124,92,255,.95), rgba(34,197,94,.78));
+      box-shadow:0 10px 25px rgba(124,92,255,.25);
+    }
+    .btn:hover{transform: translateY(-1px)}
+    .btn:active{transform: translateY(0px)}
+    .hero{padding:42px 0 18px}
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap:22px;
+      align-items:stretch;
+    }
+    @media (max-width: 860px){
+      .heroGrid{grid-template-columns:1fr}
+    }
+    .card{
+      background:rgba(15,23,48,.72);
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    .heroMain{padding:28px}
+    .kicker{
+      font-family:var(--mono);
+      color:var(--muted);
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      font-size:12px;
+    }
+    h1{
+      margin:10px 0 10px;
+      font-size: clamp(34px, 4vw, 52px);
+      line-height:1.08;
+    }
+    .lead{color:var(--muted); font-size:16px; max-width:60ch}
+    .actions{display:flex; gap:12px; flex-wrap:wrap; margin-top:18px}
+    .pillRow{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px}
+    .pill{
+      font-family:var(--mono);
+      font-size:12px;
+      padding:7px 10px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--muted);
+    }
+    .heroSide{padding:18px}
+    .sideBlock{padding:16px; border-radius:14px; border:1px solid var(--line); background:rgba(255,255,255,.03)}
+    .sideBlock + .sideBlock{margin-top:12px}
+    .sideTitle{display:flex; justify-content:space-between; align-items:center; gap:10px; margin:0 0 6px}
+    .sideTitle strong{font-size:14px}
+    .small{color:var(--muted); font-size:13px}
+    .section{margin-top:24px}
+    .sectionHead{
+      display:flex; align-items:flex-end; justify-content:space-between; gap:16px;
+      margin:28px 0 12px;
+    }
+    .sectionHead h2{margin:0; font-size:20px}
+    .sectionHead p{margin:0; color:var(--muted); font-size:14px}
+    .grid{
+      display:grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap:14px;
+    }
+    .col-6{grid-column: span 6}
+    .col-4{grid-column: span 4}
+    .col-8{grid-column: span 8}
+    .col-12{grid-column: span 12}
+    @media (max-width: 860px){
+      .col-6,.col-4,.col-8{grid-column: span 12}
+    }
+    .item{padding:16px}
+    .item h3{margin:0 0 6px; font-size:16px}
+    .meta{display:flex; gap:10px; flex-wrap:wrap; margin:10px 0 0}
+    .tag{
+      font-family:var(--mono);
+      font-size:12px;
+      color:var(--muted);
+      border:1px solid var(--line);
+      padding:6px 8px;
+      border-radius:999px;
+      background:rgba(255,255,255,.03);
+    }
+    .row{display:flex; justify-content:space-between; gap:10px; align-items:flex-start}
+    .when{color:var(--muted); font-size:13px; white-space:nowrap}
+    .divider{height:1px; background:var(--line); margin:14px 0}
+    form{display:grid; gap:10px}
+    input, textarea{
+      width:100%;
+      padding:12px 12px;
+      border-radius:12px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.03);
+      color:var(--text);
+      font-family:var(--sans);
+      outline:none;
+    }
+    textarea{min-height:120px; resize:vertical}
+    input:focus, textarea:focus{border-color: rgba(124,92,255,.55)}
+    footer{
+      margin-top:28px;
+      color:var(--muted);
+      font-size:13px;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .mono{font-family:var(--mono)}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="nav">
+      <a class="brand" href="#top">
+        <span class="dot" aria-hidden="true"></span>
+        <strong>Your Name</strong>
+      </a>
+      <nav class="links" aria-label="Primary">
+        <a href="#projects">Projects</a>
+        <a href="#experience">Experience</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+      <a class="btn primary" href="#contact">Let’s talk →</a>
+    </div>
+  </header>
+
+  <main id="top" class="wrap">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="heroGrid">
+        <div class="card heroMain">
+          <div class="kicker">ROLE / SPECIALTY</div>
+          <h1>Hi, I’m <span style="background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; background-clip:text; color:transparent;">Your Name</span>.</h1>
+          <p class="lead">
+            I build <strong>___</strong> (apps / websites / data products / design systems) that help <strong>___</strong>.
+            I care about clean UX, performance, and shipping.
+          </p>
+          <div class="actions">
+            <a class="btn primary" href="#projects">See projects</a>
+            <a class="btn" href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noreferrer">LinkedIn</a>
+            <a class="btn" href="https://github.com/your-handle" target="_blank" rel="noreferrer">GitHub</a>
+            <a class="btn" href="./resume.pdf" target="_blank" rel="noreferrer">Resume</a>
+          </div>
+          <div class="pillRow">
+            <span class="pill">Based in Dallas, Texas</span>
+            <span class="pill">Open to: Full-time / Freelance</span>
+            <span class="pill">Email: lohitashwakumar@outlook.com</span>
+          </div>
+        </div>
+
+        <aside class="card heroSide">
+          <div class="sideBlock">
+            <p class="sideTitle"><strong>Now</strong><span class="small mono">2026</span></p>
+            <p class="small">Working on <strong>___</strong> and looking for opportunities in <strong>___</strong>.</p>
+          </div>
+          <div class="sideBlock">
+            <p class="sideTitle"><strong>Top strengths</strong></p>
+            <p class="small">System design • Product thinking • Fast iteration • Communication</p>
+          </div>
+          <div class="sideBlock">
+            <p class="sideTitle"><strong>Quick links</strong></p>
+            <p class="small">
+              <a href="#projects">Projects</a> ·
+              <a href="#contact">Email</a> ·
+              <a href="https://cal.com/" target="_blank" rel="noreferrer">Schedule</a>
+            </p>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Projects</h2>
+          <p>Pick 3–6 things you’re proud of. Show outcomes, not just features.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <article class="card item col-6">
+          <div class="row">
+            <h3>Project One</h3>
+            <span class="when">2025</span>
+          </div>
+          <p class="small">
+            One-liner on what it is and who it helps. Add a measurable result if you can.
+            <br><span class="mono">Example:</span> Reduced onboarding time by 30%.
+          </p>
+          <div class="meta">
+            <span class="tag">React</span><span class="tag">Node</span><span class="tag">Postgres</span>
+          </div>
+          <div class="divider"></div>
+          <div class="actions">
+            <a class="btn" href="https://example.com" target="_blank" rel="noreferrer">Live</a>
+            <a class="btn" href="https://github.com/your-handle/project" target="_blank" rel="noreferrer">Code</a>
+          </div>
+        </article>
+
+        <article class="card item col-6">
+          <div class="row">
+            <h3>Project Two</h3>
+            <span class="when">2024</span>
+          </div>
+          <p class="small">
+            What problem did you solve? What did you personally build?
+          </p>
+          <div class="meta">
+            <span class="tag">Python</span><span class="tag">ML</span><span class="tag">Docker</span>
+          </div>
+          <div class="divider"></div>
+          <div class="actions">
+            <a class="btn" href="https://example.com" target="_blank" rel="noreferrer">Case study</a>
+            <a class="btn" href="https://github.com/your-handle/project" target="_blank" rel="noreferrer">Code</a>
+          </div>
+        </article>
+
+        <article class="card item col-12">
+          <div class="row">
+            <h3>Project Three</h3>
+            <span class="when">2023</span>
+          </div>
+          <p class="small">
+            This can be a longer highlight. Add screenshots later if you want.
+          </p>
+          <div class="meta">
+            <span class="tag">Design Systems</span><span class="tag">Accessibility</span><span class="tag">Performance</span>
+          </div>
+          <div class="divider"></div>
+          <div class="actions">
+            <a class="btn" href="https://example.com" target="_blank" rel="noreferrer">Write-up</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- EXPERIENCE -->
+    <section id="experience" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Experience</h2>
+          <p>Keep this tight: role, impact, and a couple of bullets.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card item col-6">
+          <div class="row">
+            <h3>Company / Team — Title</h3>
+            <span class="when">2024–2026</span>
+          </div>
+          <ul class="small">
+            <li>Shipped ___ feature used by ___ users.</li>
+            <li>Improved ___ by ___% via ___.</li>
+            <li>Led ___ across ___ stakeholders.</li>
+          </ul>
+        </div>
+
+        <div class="card item col-6">
+          <div class="row">
+            <h3>Company / Team — Title</h3>
+            <span class="when">2022–2024</span>
+          </div>
+          <ul class="small">
+            <li>Built ___ that saved ___ hours/week.</li>
+            <li>Owned ___ from discovery to launch.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Skills</h2>
+          <p>Grouped skills read better than a giant list.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card item col-4">
+          <h3>Frontend</h3>
+          <p class="small">React, TypeScript, Next.js, HTML/CSS, Tailwind</p>
+        </div>
+        <div class="card item col-4">
+          <h3>Backend</h3>
+          <p class="small">Node, Python, REST, SQL, Postgres</p>
+        </div>
+        <div class="card item col-4">
+          <h3>Tooling</h3>
+          <p class="small">Git, Docker, CI/CD, Testing, Monitoring</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+      <div class="sectionHead">
+        <div>
+          <h2>Contact</h2>
+          <p>Fastest: email. You can also add a simple form.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="card item col-6">
+          <h3>Email</h3>
+          <p class="small">
+            <a href="mailto:you@example.com">you@example.com</a><br/>
+            Or DM me on <a href="https://www.linkedin.com/in/your-handle" target="_blank" rel="noreferrer">LinkedIn</a>.
+          </p>
+        </div>
+
+        <div class="card item col-6">
+          <h3>Message me</h3>
+          <!-- Option A: Formspree (recommended). Replace FORM_ID. -->
+          <form id="contactForm" action="https://formspree.io/f/FORM_ID" method="POST">
+            <input name="name" placeholder="Your name" required />
+            <input type="email" name="email" placeholder="Your email" required />
+            <textarea name="message" placeholder="What would you like to build?" required></textarea>
+            <button class="btn primary" type="submit">Send</button>
+            <p id="formNote" class="small hide">Thanks! Your message was sent.</p>
+          </form>
+          <p class="small" style="margin-top:10px;">
+            Tip: sign up on Formspree, paste your form URL above, and you’re done.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <span>© <span id="year"></span> Your Name</span>
+      <span class="mono">Built with plain HTML/CSS/JS</span>
+    </footer>
+  </main>
+
+  <script>
+    // year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // optional: show a "sent" message without navigating away (works if Formspree returns OK)
+    const form = document.getElementById("contactForm");
+    const note = document.getElementById("formNote");
+    form.addEventListener("submit", async (e) => {
+      // If you don't use Formspree, remove this block.
+      e.preventDefault();
+      const data = new FormData(form);
+      try {
+        const res = await fetch(form.action, { method: "POST", body: data, headers: { "Accept": "application/json" } });
+        if (res.ok) {
+          form.reset();
+          note.classList.remove("hide");
+          setTimeout(() => note.classList.add("hide"), 4000);
+        } else {
+          alert("Something went wrong. Please email me directly.");
+        }
+      } catch {
+        alert("Network issue. Please email me directly.");
+      }
+    });
+  </script>
+</body>
+</html>
